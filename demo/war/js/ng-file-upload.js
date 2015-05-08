@@ -232,9 +232,11 @@ function linkFileSelect(scope, elem, attr, ngModel, $parse, $timeout, $compile) 
         if (attr['accept']) fileElem.attr('accept', attr['accept']);
         if (attr.ngfCapture) fileElem.attr('capture', $parse(attr.ngfCapture)(scope));
         if (attr.ngfDisabled) fileElem.attr('disabled', $parse(attr.ngfDisabled)(scope));
+        var isInput = isInputTypeFile()
         for (var i = 0; i < elem[0].attributes.length; i++) {
             var attribute = elem[0].attributes[i];
-            if (attribute.name !== 'type' && attribute.name !== 'class' && attribute.name !== 'id' && attribute.name !== 'style') {
+            if (isInput || (attribute.name !== 'type' && attribute.name !== 'class' && 
+            		attribute.name !== 'id' && attribute.name !== 'style')) {
             	fileElem.attr(attribute.name, attribute.value);
             }
         }
@@ -572,8 +574,8 @@ function validate(scope, $parse, attr, file, evt) {
     var fileSizeMin = $parse(attr.ngfMinSize)(scope, {$file: file, $event: evt}) || -1;
     if (accept != null && angular.isString(accept)) {
         var regexp = new RegExp(globStringToRegex(accept), 'gi');
-        accept = (file.type != null && file.type.toLowerCase().match(regexp)) ||
-        		(file.name != null && file.name.toLowerCase().match(regexp));
+        accept = (file.type != null && regexp.test(file.type.toLowerCase())) ||
+        		(file.name != null && regexp.test(file.name.toLowerCase()));
     }
     return (accept == null || accept) && (file.size == null || (file.size < fileSizeMax && file.size > fileSizeMin));
 }
